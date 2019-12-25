@@ -32,7 +32,7 @@ Cell comp_arrangement(int x, int y) {
         for (int i = line - 1; i <= line + 1; i++) {
             for (int j = column - 1; j <= column + 4; j++) {
                 if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1 && chip[i][j] != ship) chip[i][j] = busy;
+                if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
             }
         }
     } else {
@@ -41,7 +41,7 @@ Cell comp_arrangement(int x, int y) {
         for (int i = line - 1; i <= line + 4; i++) {
             for (int j = column - 1; j <= column + 1; j++) {
                 if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1 && chip[i][j] != ship) chip[i][j] = busy;
+                if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
             }
 
         }
@@ -72,7 +72,7 @@ Cell comp_arrangement(int x, int y) {
             for (int i = line - 1; i <= line + 1; i++) {
                 for (int j = column - 1; j <= column + 3; j++) {
                     if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = busy;
+                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = discovered;
                 }
             }
         } else {
@@ -81,7 +81,7 @@ Cell comp_arrangement(int x, int y) {
             for (int i = line - 1; i <= line + 3; i++) {
                 for (int j = column - 1; j <= column + 1; j++) {
                     if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1 && chip[i][j] != ship) chip[i][j] = busy;
+                    if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
                 }
 
             }
@@ -114,7 +114,7 @@ Cell comp_arrangement(int x, int y) {
             for (int i = line - 1; i <= line + 1; i++) {
                 for (int j = column - 1; j <= column + 2; j++) {
                     if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = busy;
+                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = discovered;
                 }
             }
         } else {
@@ -123,7 +123,7 @@ Cell comp_arrangement(int x, int y) {
             for (int i = line - 1; i <= line + 2; i++) {
                 for (int j = column - 1; j <= column + 1; j++) {
                     if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1 && chip[i][j] != ship) chip[i][j] = busy;
+                    if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
                 }
 
             }
@@ -143,7 +143,7 @@ Cell comp_arrangement(int x, int y) {
         for (int i = rand1 - 1; i <= rand1 + 1; i++) {
             for (int j = start_ - 1; j <= start_ + 1; j++) {
                 if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1) if (chip[i][j] != ship) chip[i][j] = busy;
+                if (k == 1) if (chip[i][j] != ship) chip[i][j] = discovered;
             }
         }
 
@@ -160,6 +160,7 @@ int main() {
             comp_game.place(i, j, comp_arrangement(i, j));
         }
     }
+    comp_game.undiscover();
 
 //    // вывод полный
     //comp_game.print_fully();
@@ -170,42 +171,58 @@ int main() {
 //    // вывод красивый
     comp_game.print_beat();
     //cout<<comp_game.end();
-    while (!comp_game.end() || !user_game.end()) {
-        int x, y;
-        cout << "Your turn" << endl;
-        {
-            char char_x;
-            do {
-                cin >> char_x >> y;
-                x = int(char_x) - 65;
-            } while (!comp_game.is_out_of_bounds(x, y) || !comp_game.is_cell_visited(x, y));
-        }
-        /*
-        char X;
-        int x, y;
-        cout << x << ' ' << y << endl;
 
-        while (!comp_game.is_out_of_bounds(x, y) || !comp_game.get_cell_attack(x, y)) {
-            cout << "Выход за гарницы поля или уже атакованная клетка. Введите заново" << endl;
-            cin >> X >> y;
-            x = int(X) - 65;
-        }
-         */
-        if (comp_game.get_cell_miss(x, y)) {
-            cout << comp_game.get_cell_miss(x, y) << endl;
-            comp_game.place(x, y, miss);
-            cout << comp_game.get_cell_miss(x, y) << endl;
-            comp_game.print_fully();
-        }
-        //else {
-//            if (comp_game.get_cell_damage(x, y)) {
-//
-//
-//
-//                comp_game.place(x, y, damage); comp_game.print_fully();}
-//        }
+    bool game_over = false;
+    bool player = true;
+    while (true) {
+        if (game_over) break;
 
+        // user
+        if (player) {
+            while (true) {
+                int x, y;
+                cout << "Your turn" << endl;
+                {
+                    char char_x;
+                    do {
+                        cin >> char_x >> y;
+                        x = int(char_x) - 65;
+                    } while (comp_game.is_out_of_bounds(x, y));
+                }
 
+                bool exit = false;
+                switch (comp_game.attack(x, y)) {
+                    case miss:
+                        cout << "You missed" << endl;
+                        exit = true;
+                        break;
+                    case damage:
+                        cout << "You damaged the ship" << endl;
+                        exit = false;
+                        break;
+                    case destroy:
+                        cout << "You destroyed the ship" << endl;
+                        exit = false;
+                        break;
+                    case win:
+                        cout << "You won!" << endl;
+                        exit = true;
+                        game_over = true;
+                        break;
+                    case already_attacked:
+                        cout << "You have already attacked at this coordinates, try again" << endl;
+                        exit = false;
+                        break;
+                }
+
+                if (exit) break;
+            }
+        } else {
+            cout << "Bot ustal" << endl;
+        }
+
+        player = !player;
     }
+
     return 0;
 }

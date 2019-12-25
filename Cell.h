@@ -6,7 +6,7 @@
 //ship -
 //discovered - пусиая, но стреляли
 //attack - клетка, которую атаковали
-//busy - клетки около убитого коробля
+//discovered - клетки около убитого коробля
 enum Cell {
 
     /**
@@ -16,7 +16,15 @@ enum Cell {
     /**
      * Корабль, но не атакованная
      */
-    ship, discovered, attacked, busy
+    ship,
+    /**
+     *
+     */
+    discovered,
+    /**
+     *
+     */
+    attacked
 };
 
 bool is_ship(const Cell &cell) {
@@ -24,7 +32,7 @@ bool is_ship(const Cell &cell) {
 }
 
 bool is_empty(const Cell &cell) {
-    return cell == freee || cell == discovered || cell == busy;
+    return cell == freee || cell == discovered;
 }
 
 

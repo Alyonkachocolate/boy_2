@@ -4,36 +4,42 @@
 
 
 #include <stdexcept>
-#include <set>
+#include <vector>
 #include "Cell.h"
 #include "Attack.h"
 
 using std::cin;
 using std::endl;
 using std::cout;
-using std::set;
+using std::vector;
 using std::runtime_error;
 
 class Game {
 protected:
     Cell cells[10][10] = {};
     size_t k = 0;
-public:
-    void user_arrangement(); // заполенение для пользователя
-    Cell get_cell_(int x, int y); // проверка клетки
-    bool is_out_of_bounds(int x, int y);
-
-    Attack attack(int x, int y);
 
     bool try_attack(int x, int y);
 
+    void surround_ship_cell(const int &x, const int &y);
+
+public:
+    void user_arrangement(); // заполенение для пользователя
+
+    Cell get_cell_(int x, int y); // проверка клетки
+
+    static bool is_out_of_bounds(int x, int y);
+
+    Attack attack(int x, int y);
+
     bool is_cell_visited(int x, int y); //проверка на атакованную клетку
-    bool get_cell_damage(int x, int y);
 
     bool get_cell_miss(int x, int y); // 1 - пустая клетка
-    //enum attack attack_(int x, int y); // атака клетки
+
     void place(int x, int y, Cell c); // выставление значения клетке
     bool end(); // проверка конца игры: 0 - не конец игры
+
+    void undiscover();
 
     void print_beat(); // вывод красивый
     void print_for(); // вывод компа для user
@@ -64,7 +70,7 @@ void Game::user_arrangement() {
         for (int i = line - 1; i <= line + 1; i++) {
             for (int j = column - 1; j <= column + 4; j++) {
                 if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1) if (cells[i][j] != ship) cells[i][j] = busy;
+                if (k == 1) if (cells[i][j] != ship) cells[i][j] = discovered;
             }
         }
     }
@@ -78,7 +84,7 @@ void Game::user_arrangement() {
         for (int i = line - 1; i <= line + 4; i++) {
             for (int j = column - 1; j <= column + 1; j++) {
                 if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1 && cells[i][j] != ship) cells[i][j] = busy;
+                if (k == 1 && cells[i][j] != ship) cells[i][j] = discovered;
             }
 
         }
@@ -162,16 +168,16 @@ void Game::print_beat() {
     pole[0][0] = ' ';
     for (int i = 1; i < 11; i++) {
         for (int j = 1; j < 11; j++) {
-            if (cells[i - 1][j - 1] == freee || cells[i - 1][j - 1] == busy)
+            if (cells[i - 1][j - 1] == freee || cells[i - 1][j - 1] == discovered)
                 pole[i][j] = '.';
-            if (cells[i - 1][j - 1] == attack) pole[i][j] = 'x';
+            if (cells[i - 1][j - 1] == attacked) pole[i][j] = 'x';
             if (cells[i - 1][j - 1] == ship) pole[i][j] = '#';
         }
     }
     cout << "You" << endl;
     char c = '0';
-    for (int i = 1; i < 11; i++) pole[i][0] = c++;
-    for (char j = 1; j < 11; j++) pole[0][j] = 64 + j;
+    for (int i = 1; i < 11; i++) pole[0][i] = c++;
+    for (char j = 1; j < 11; j++) pole[j][0] = 64 + j;
     for (auto &i : pole) {
         for (char j : i) {
             cout << j << ' ' << ' ' << ' ';
@@ -190,11 +196,9 @@ void Game::print_fully() {
     for (int i = 1; i < 11; i++) {
         for (int j = 1; j < 11; j++) {
             if (cells[i - 1][j - 1] == freee) pole[i][j] = '.';
-            if (cells[i - 1][j - 1] == attack) pole[i][j] = 'x';
+            if (cells[i - 1][j - 1] == attacked) pole[i][j] = 'x';
             if (cells[i - 1][j - 1] == ship) pole[i][j] = '#';
-            if (cells[i - 1][j - 1] == busy) pole[i][j] = '-';
-            if (cells[i - 1][j - 1] == miss) pole[i][j] = '0';
-
+            if (cells[i - 1][j - 1] == discovered) pole[i][j] = '-';
         }
     }
     for (auto &i : pole) {
@@ -209,16 +213,28 @@ bool Game::get_cell_miss(int x, int y) {
     return cells[x][y] != ship;
 }
 
-bool Game::get_cell_damage(int x, int y) {
-    return cells[x][y] == ship;
-}
-
 bool Game::is_cell_visited(int x, int y) {
+    cout << "Cell at " << x << ":" << y << endl;
+    switch (cells[x][y]) {
+        case freee:
+            cout << "free";
+            break;
+        case ship:
+            cout << "ship";
+            break;
+        case discovered:
+            cout << "discovered";
+            break;
+        case attacked:
+            cout << "attacked";
+            break;
+    }
+    cout << endl;
     return cells[x][y] == discovered || cells[x][y] == attacked;
 }
 
 bool Game::is_out_of_bounds(int x, int y) {
-    return (x < 11) && (x >= 0) && (y < 11) && (y >= 0);
+    return (x < 0 || x >= 10) || (y < 0 || y >= 10);
 }
 
 Attack Game::attack(int x, int y) {
@@ -229,10 +245,12 @@ Attack Game::attack(int x, int y) {
     }
     if (cells[x][y] == ship) {
         cells[x][y] = attacked;
-        return try_attack(x, y);
+        --k;
+        if (try_attack(x, y)) return k == 0 ? win : destroy; else return damage;
     }
     throw runtime_error("Всё пошло хреново!!!! Как и вся моя жизнь!!!!!!!!!!!!!!!!!!");
 }
+
 
 /**
  *
@@ -241,19 +259,76 @@ Attack Game::attack(int x, int y) {
  * @return 1 - убил, 0 - ранил
  */
 bool Game::try_attack(const int x, const int y) {
-    int tested_y = y;
-
     struct ship_coordinate {
         int x, y;
     };
-    set<ship_coordinate> ship_coordinates;
-    while (++tested_y >= 0) {
-        const auto cell = cells[x][tested_y];
-        if (is_empty(cell)) break;
-        if (cell == ship) return false;
-        else ship_coordinates.insert(ship_coordinates(x, y));
+    vector<ship_coordinate> ship_coordinates;
+
+    {
+        int tested_y = y;
+        while (--tested_y >= 0) {
+            const auto cell = cells[x][tested_y];
+            if (is_empty(cell)) break;
+            if (cell == ship) return false;
+            else ship_coordinates.push_back(ship_coordinate{x, y});
+        }
+        tested_y = y;
+        while (++tested_y < 10) {
+            const auto cell = cells[x][tested_y];
+            if (is_empty(cell)) break;
+            if (cell == ship) return false;
+            else ship_coordinates.push_back(ship_coordinate{x, y});
+        }
     }
 
+    {
+        int tested_x = x;
+        while (--tested_x >= 0) {
+            const auto cell = cells[tested_x][y];
+            if (is_empty(cell)) break;
+            if (cell == ship) return false;
+            else ship_coordinates.push_back(ship_coordinate{x, y});
+        }
+        tested_x = x;
+        while (++tested_x < 10) {
+            const auto cell = cells[tested_x][y];
+            if (is_empty(cell)) break;
+            if (cell == ship) return false;
+            else ship_coordinates.push_back(ship_coordinate{x, y});
+        }
+    }
+
+    surround_ship_cell(x, y);
+    for (const auto &coordinate : ship_coordinates) surround_ship_cell(coordinate.x, coordinate.y);
+
+    return true;
+}
+
+void Game::surround_ship_cell(const int &x, const int &y) {
+    for (int i = x - 1; i <= x + 1; i++)
+        for (int j = y - 1; j <= y + 1; j++) {
+            auto &cell = cells[i][j];
+            if (cell == freee) cell = discovered;
+        }
+}
+
+void Game::undiscover() {
+    for (auto &column : cells) {
+        for (auto &cell : column) {
+            switch (cell) {
+                case freee:
+                    break;
+                case ship:
+                    break;
+                case discovered:
+                    cell = freee;
+                    break;
+                case attacked:
+                    cell = ship;
+                    break;
+            }
+        }
+    }
 }
 
 //void Game::print_for() {
