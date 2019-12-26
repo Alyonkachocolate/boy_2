@@ -185,7 +185,6 @@ void Bot::place_ships() {
 bool Bot::play() {
     int x = rand() % 10;
     int y = rand() % 10;
-    } else {
         if (position == unknown) {
             x = last_ship_x;
             y = last_ship_y;
@@ -289,5 +288,5 @@ bool Bot::play() {
             }
         }
     }
-}
+
 #endif //BOY_2_BOT_H
