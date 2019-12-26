@@ -272,7 +272,7 @@ bool Bot::attack_ship() {
             case miss:
                 return false;
             case damage: { // ранили, но не убили
-                position = (x==last_ship_x) ? gorizont : vertical;
+                position = (x == last_ship_x) ? gorizont : vertical;
                 return attack_ship();
             }
             case destroy:
@@ -285,16 +285,70 @@ bool Bot::attack_ship() {
             case already_attacked:
                 throw runtime_error("R U Tam ofigeli");
         }
+    }
 
-        while (true){
-            int s=1;
-            if (position==vertical) {
-                bool znak=0;
-                while (true){
-                    if (rival_field->is_out_of_bounds(x+s,y))
-                    if (!rival_field->is_cell_visited(x+s,y)) {
+    while (true) {
+        int s = 1;
+        if (position == vertical) {
+            ////////////////////////////////////////////////////////////////BEGIN1
+            bool positive = true;
+            while (true) {
+                if (rival_field->is_out_of_bounds(last_ship_x + s, last_ship_y)) {
+                    if (positive) {
+                        s = -1;
+                        positive = false;
+                    }
+                    else throw runtime_error("R U Tam ofigeli");
+                }
 
-                        switch (rival_field->attack(x+s, y)) {
+                switch (rival_field->attack(last_ship_x + s, last_ship_y)) {
+                    case miss: return false; // передаём ход игроку
+                    case damage: break; // продолжаем перебор в эту сторону
+                    case destroy:
+                        last_ship_x = last_ship_y = -1;
+                        position = unknown;
+                        return random_attack(); // снова переходим на случайные атаки
+                    case win: return true; // тупа победа (c)
+                    case already_attacked: throw runtime_error("R U Tam ofigeli");
+                }
+                if (positive) ++s;
+                else --s;
+            }
+            ////////////////////////////////////////////////////////////////END1
+            if (sign) {
+                (position ? s : -s);
+                while (true) {
+                    if (rival_field->is_out_of_bounds(x - s, y))
+                        if (!rival_field->is_cell_visited(x - s, y)) {
+
+                            switch (rival_field->attack(x - s, y)) {
+                                case miss:
+                                    return false;
+                                case damage: { // ранили, но не убили
+                                    break;
+                                }
+                                case destroy:
+                                    last_ship_x = -1;
+                                    last_ship_y = -1;
+                                    position = unknown;
+                                    break; // убили корабль
+                                case win:
+                                    return true; // победили
+                                case already_attacked:
+                                    throw runtime_error("R U Tam ofigeli");
+                            }
+                        } else s = 1;
+                    else break;
+                }
+            }
+        } else {
+            ////////////////////////////////////////////////////////////////BEGIN2
+            bool znak = false;
+            while (true) {
+                if (rival_field->is_out_of_bounds(x, y + s))
+                    if (!rival_field->is_cell_visited(x, y + s)) {
+
+                        switch (rival_field->attack(x, y + s)) {
                             case miss:
                                 return false;
                             case damage: { // ранили, но не убили
@@ -311,44 +365,19 @@ bool Bot::attack_ship() {
                                 throw runtime_error("R U Tam ofigeli");
                         }
                         ++s;
+                    } else {
+                        znak = 1;
+                        s = 1
                     }
-                        else {znak=1; s=1}
-                        else break;
-                        }
-                if (znak==1) {(position ? s : -s);
-                    while (true){
-                        if (rival_field->is_out_of_bounds(x-s,y))
-                            if (!rival_field->is_cell_visited(x-s,y)) {
-
-                                switch (rival_field->attack(x-s, y)) {
-                                    case miss:
-                                        return false;
-                                    case damage: { // ранили, но не убили
-                                        break;
-                                    }
-                                    case destroy:
-                                        last_ship_x = -1;
-                                        last_ship_y = -1;
-                                        position = unknown;
-                                        break; // убили корабль
-                                    case win:
-                                        return true; // победили
-                                    case already_attacked:
-                                        throw runtime_error("R U Tam ofigeli");
-                                }
-                            }
-                            else s=1;
-                        else break;
-                    }
+                else break;
             }
-        }
-            else {
-                bool znak=0;
-                while (true){
-                    if (rival_field->is_out_of_bounds(x,y+s))
-                        if (!rival_field->is_cell_visited(x,y+s)) {
+            if (znak) {
+                (position ? s : -s);
+                while (true) {
+                    if (rival_field->is_out_of_bounds(x, y - s))
+                        if (!rival_field->is_cell_visited(x, y - s)) {
 
-                            switch (rival_field->attack(x, y+s)) {
+                            switch (rival_field->attack(x, y - s)) {
                                 case miss:
                                     return false;
                                 case damage: { // ранили, но не убили
@@ -364,40 +393,13 @@ bool Bot::attack_ship() {
                                 case already_attacked:
                                     throw runtime_error("R U Tam ofigeli");
                             }
-                            ++s;
-                        }
-                        else {znak=1; s=1}
+                        } else s = 1;
                     else break;
                 }
-                if (znak==1) {(position ? s : -s);
-                    while (true){
-                        if (rival_field->is_out_of_bounds(x,y-s))
-                            if (!rival_field->is_cell_visited(x,y-s)) {
-
-                                switch (rival_field->attack(x, y-s)) {
-                                    case miss:
-                                        return false;
-                                    case damage: { // ранили, но не убили
-                                        break;
-                                    }
-                                    case destroy:
-                                        last_ship_x = -1;
-                                        last_ship_y = -1;
-                                        position = unknown;
-                                        break; // убили корабль
-                                    case win:
-                                        return true; // победили
-                                    case already_attacked:
-                                        throw runtime_error("R U Tam ofigeli");
-                                }
-                            }
-                            else s=1;
-                        else break;
-                    }
-                }
             }
-
+        }
+        ////////////////////////////////////////////////////////////////END2
     }
-
+}
 
 #endif //BOY_2_BOT_H
