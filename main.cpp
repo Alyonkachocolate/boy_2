@@ -156,9 +156,9 @@ int main() {
     Game user_game; //создание Game для пользователя и бота
     Game comp_game;
 
-     Bot bot(&comp_game, &user_game);
+    Bot bot(&comp_game, &user_game);
 
-     bot.place_ships();
+    bot.place_ships();
     // рандомное заполение для бота
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
@@ -220,18 +220,17 @@ int main() {
 
                 if (exit) break;
             }
+        } else {
+            cout << "Bot ustal" << endl;
+            if (bot.play()) {
+                cout << "Bot won!!!!!!!" << endl;
+                game_over = true;
+            }
         }
-                else {
-                    cout << "Bot ustal" << endl;
-                    if (bot.play()) {
-                        cout << "Bot won!!!!!!!" << endl;
-                        game_over = true;
-                    }
-                }
 
-                if (game_over) break;
+        if (game_over) break;
 
-                player = !player;
+        player = !player;
 
 
     }

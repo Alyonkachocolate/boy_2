@@ -28,7 +28,7 @@ public:
 
     Cell get_cell_(int x, int y); // проверка клетки
 
-    static bool is_out_of_bounds(int x, int y);
+    static bool is_out_of_bounds(int x, int y); //входит в диапазон
 
     Attack attack(int x, int y); // статус атаки
 
@@ -57,86 +57,92 @@ void Game::user_arrangement() {
 
     cout << "Four deck" << endl;
     cout << "Cells: ";
-    int start4, end4;
-    char start4_, end4_;
-    cin >> start4_ >> start4 >> end4_ >> end4;
-    if (start4 == end4) {
-        cells[start4][int(start4_) - 65] = ship;
-        cells[start4][int(start4_) - 64] = ship;
-        cells[start4][int(start4_) - 63] = ship;
-        cells[start4][int(end4_) - 65] = ship;
-        line = start4;
-        column = start4_;
-        for (int i = line - 1; i <= line + 1; i++) {
-            for (int j = column - 1; j <= column + 4; j++) {
-                if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1) if (cells[i][j] != ship) cells[i][j] = discovered;
+    int start4 = 0, end4 = 0;
+    char start4_ = 0, end4_ = 0;
+    if (!is_out_of_bounds(start4,int(start4_) - 65)) if (!is_out_of_bounds(end4, int(end4_) - 65)) cout<<"Error. Use capital letters!";
+    else {
+            cin >> start4_ >> start4 >> end4_ >> end4;
+            if (start4 == end4) {
+                cells[start4][int(start4_) - 65] = ship;
+                cells[start4][int(start4_) - 64] = ship;
+                cells[start4][int(start4_) - 63] = ship;
+                cells[start4][int(end4_) - 65] = ship;
+                line = start4;
+                column = start4_;
+                for (int i = line - 1; i <= line + 1; i++) {
+                    for (int j = column - 1; j <= column + 4; j++) {
+                        if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
+                        if (k == 1) if (cells[i][j] != ship) cells[i][j] = discovered;
+                    }
+                }
             }
-        }
-    }
-    if (start4_ == end4_) {
-        cells[start4][int(start4_) - 65] = ship;
-        cells[start4 + 1][int(start4_) - 65] = ship;
-        cells[start4 + 2][int(start4_) - 65] = ship;
-        cells[end4][int(start4_) - 65] = ship;
-        line = start4_;
-        column = start4;
-        for (int i = line - 1; i <= line + 4; i++) {
-            for (int j = column - 1; j <= column + 1; j++) {
-                if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1 && cells[i][j] != ship) cells[i][j] = discovered;
+            if (start4_ == end4_) {
+                cells[start4][int(start4_) - 65] = ship;
+                cells[start4 + 1][int(start4_) - 65] = ship;
+                cells[start4 + 2][int(start4_) - 65] = ship;
+                cells[end4][int(start4_) - 65] = ship;
+                line = start4_;
+                column = start4;
+                for (int i = line - 1; i <= line + 4; i++) {
+                    for (int j = column - 1; j <= column + 1; j++) {
+                        if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
+                        if (k == 1 && cells[i][j] != ship) cells[i][j] = discovered;
+                    }
+
+                }
             }
+            cout << endl;
 
-        }
-    }
-    cout << endl;
-
-    cout << "Three deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 2; i++) {
-        int start3, end3;
-        char start3_, end3_;
-        cin >> start3_ >> start3 >> end3_ >> end3;
-        if (start3 == end3) {
-            cells[start3][int(start3_) - 65] = ship;
-            cells[start3][int(start3_) - 64] = ship;
-            cells[start3][int(end3_) - 65] = ship;
-        }
-        if (start3_ == end3_) {
-            cells[start3][int(start3_) - 65] = ship;
-            cells[start3 + 1][int(start3_) - 65] = ship;
-            cells[end3][int(start3_) - 65] = ship;
-        }
-    }
-    cout << endl;
+            cout << "Three deck" << endl;
+            cout << "Cells: ";
+            for (int i = 0; i < 2; i++) {
+                int start3, end3;
+                char start3_, end3_;
+                cin >> start3_ >> start3 >> end3_ >> end3;
+                if (!is_out_of_bounds(start3,int(start3_) - 65)) if (!is_out_of_bounds(end3, int(end3_) - 65)) cout<<"Error. Use capital letters!";
+                if (start3 == end3) {
+                    cells[start3][int(start3_) - 65] = ship;
+                    cells[start3][int(start3_) - 64] = ship;
+                    cells[start3][int(end3_) - 65] = ship;
+                }
+                if (start3_ == end3_) {
+                    cells[start3][int(start3_) - 65] = ship;
+                    cells[start3 + 1][int(start3_) - 65] = ship;
+                    cells[end3][int(start3_) - 65] = ship;
+                }
+            }
+            cout << endl;
 
 
-    cout << "Double deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 3; i++) {
-        int start2, end2;
-        char start2_, end2_;
-        cin >> start2_ >> start2 >> end2_ >> end2;
-        if (start2 == end2) {
-            cells[start2][int(start2_) - 65] = ship;
-            cells[start2][int(end2_) - 65] = ship;
-        }
-        if (start2_ == end2_) {
-            cells[start2][int(start2_) - 65] = ship;
-            cells[end2][int(start2_) - 65] = ship;
-        }
-    }
-    cout << endl;
+            cout << "Double deck" << endl;
+            cout << "Cells: ";
+            for (int i = 0; i < 3; i++) {
+                int start2, end2;
+                char start2_, end2_;
+                cin >> start2_ >> start2 >> end2_ >> end2;
+                if (!is_out_of_bounds(start2,int(start2_) - 65)) if (!is_out_of_bounds(end2, int(end2_) - 65)) cout<<"Error. Use capital letters!";
+                if (start2 == end2) {
+                    cells[start2][int(start2_) - 65] = ship;
+                    cells[start2][int(end2_) - 65] = ship;
+                }
+                if (start2_ == end2_) {
+                    cells[start2][int(start2_) - 65] = ship;
+                    cells[end2][int(start2_) - 65] = ship;
+                }
+            }
+            cout << endl;
 
-    cout << "Single deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 4; i++) {
-        int start1;
-        char start1_;
-        cin >> start1_ >> start1;
-        cells[start1][int(start1_) - 65] = ship;
-    }
-    cout << endl;
+            cout << "Single deck" << endl;
+            cout << "Cells: ";
+            for (int i = 0; i < 4; i++) {
+                int start1;
+                char start1_;
+                cin >> start1_ >> start1;
+                if (!is_out_of_bounds(start1,int(start1_) - 65)) cout<<"Error. Use capital letters!";
+                cells[start1][int(start1_) - 65] = ship;
+            }
+            cout << endl;
+        }
 }
 
 Cell Game::get_cell_(int x, int y) {

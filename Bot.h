@@ -1,3 +1,4 @@
+
 //
 // Created by user on 25/12/2019.
 //
@@ -30,6 +31,7 @@ public:
     bool random_attack();
 
     bool attack_ship();
+
 };
 
 void Bot::place_ships() {
@@ -191,7 +193,6 @@ bool Bot::play() {
 }
 
 bool Bot::random_attack() {
-    // TODO переместить в отдельную функцию
     // случайная атака корабля
     while (true) {
         int x = rand() % 10;
@@ -267,6 +268,23 @@ bool Bot::attack_ship() {
             if (exit) break;
         }
 
+        switch (rival_field->attack(x, y)) {
+            case miss:
+                return false;
+            case damage: { // ранили, но не убили
+                Position orient = (x==last_ship_x) ? gorizont : vertical;
+                return attack_ship();
+            }
+            case destroy:
+                last_ship_x = -1;
+                last_ship_y = -1;
+                position = unknown;
+                break; // убили корабль
+            case win:
+                return true; // победили
+            case already_attacked:
+                throw runtime_error("R U Tam ofigeli");
+        }
 
     }
 }
