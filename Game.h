@@ -30,9 +30,9 @@ public:
 
     static bool is_out_of_bounds(int x, int y);
 
-    Attack attack(int x, int y);
+    Attack attack(int x, int y); // статус атаки
 
-    bool is_cell_visited(int x, int y); //проверка на атакованную клетку
+    bool is_cell_visited(int x, int y); //проверка на клетку, про которую мы знаем, уже атаковали
 
     bool get_cell_miss(int x, int y); // 1 - пустая клетка
 
@@ -214,22 +214,6 @@ bool Game::get_cell_miss(int x, int y) {
 }
 
 bool Game::is_cell_visited(int x, int y) {
-    cout << "Cell at " << x << ":" << y << endl;
-    switch (cells[x][y]) {
-        case freee:
-            cout << "free";
-            break;
-        case ship:
-            cout << "ship";
-            break;
-        case discovered:
-            cout << "discovered";
-            break;
-        case attacked:
-            cout << "attacked";
-            break;
-    }
-    cout << endl;
     return cells[x][y] == discovered || cells[x][y] == attacked;
 }
 
@@ -358,9 +342,6 @@ void Game::undiscover() {
 //
 //}
 
-//bool Game::get_cell_damage(int x, int y) {
-//    return false;
-//}
 
 
 #endif //BOY_2_GAME_H

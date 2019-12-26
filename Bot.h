@@ -1,14 +1,35 @@
-#include <iostream>
+//
+// Created by user on 25/12/2019.
+//
+
+#ifndef BOY_2_BOT_H
+#define BOY_2_BOT_H
+
+#include <stdexcept>
 #include "Game.h"
-#include "Cell.h"
-#include "Attack.h"
-#include "Bot.h"
+#include "Position.h"
 
-using std::cout;
-using std::cin;
-using std::endl;
+using std::runtime_error;
 
-Cell comp_arrangement(int x, int y) {
+class Bot {
+
+protected:
+    Game *own_field;
+    Game *rival_field;
+    int last_ship_x = -1;
+    int last_ship_y = -1;
+    Position position = unknown;
+public:
+
+    Bot(Game *own_field, Game *rival_field) : own_field(own_field), rival_field(rival_field) {}
+
+    void place_ships();
+
+    bool play();
+};
+
+void Bot::place_ships() {
+    int x, y;
     Cell chip[10][10];
     for (auto &i : chip) {
         for (Cell &j : i) {
@@ -149,92 +170,124 @@ Cell comp_arrangement(int x, int y) {
         }
 
     }
-    return chip[x][y];
-}
 
-int main() {
-    Game user_game; //создание Game для пользователя и бота
-    Game comp_game;
-
-     Bot bot(&comp_game, &user_game);
-
-     bot.place_ships();
-    // рандомное заполение для бота
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            comp_game.place(i, j, comp_arrangement(i, j));
+            own_field->place(i, j, chip[i][j]);
         }
     }
-    comp_game.undiscover();
+    own_field->undiscover();
+}
 
-//    // вывод полный
-    //comp_game.print_fully();
-//    // заполенение пользователем
-//    user_game.user_arrangement();
-//    // вывод полный
-//    user_game.print_fully();
-//    // вывод красивый
-    comp_game.print_beat();
-    //cout<<comp_game.end();
 
-    bool game_over = false;
-    bool player = true;
-    while (true) {
-        // user
-        if (player) {
-            while (true) {
-                int x, y;
-                cout << "Your turn" << endl;
-                {
-                    char char_x;
-                    do {
-                        cin >> char_x >> y;
-                        x = int(char_x) - 65;
-                    } while (comp_game.is_out_of_bounds(x, y));
-                }
 
-                bool exit = false;
-                switch (comp_game.attack(x, y)) {
-                    case miss:
-                        cout << "You missed" << endl;
-                        exit = true;
+// 1 -  выиграл игру, 0 - убил или ранил корабль
+bool Bot::play() {
+    int x = rand() % 10;
+    int y = rand() % 10;
+    } else {
+        if (position == unknown) {
+            x = last_ship_x;
+            y = last_ship_y;
+            int variant = rand() % 4;
+
+            bool exit = true;
+            while (exit) {
+                switch (variant) {
+                    case 0:
+                        if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
+                            ++x;
+                            break;
+                        } else ++variant;
                         break;
-                    case damage:
-                        cout << "You damaged the ship" << endl;
-                        exit = false;
+                    case 1:
+                        if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
+                            --x;
+                            break;
+                        } else ++variant;
                         break;
-                    case destroy:
-                        cout << "You destroyed the ship" << endl;
-                        exit = false;
+                    case 2:
+                        if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
+                            ++y;
+                            break;
+                        } else ++variant;
                         break;
-                    case win:
-                        cout << "You won!" << endl;
-                        exit = true;
-                        game_over = true;
-                        break;
-                    case already_attacked:
-                        cout << "You have already attacked at this coordinates, try again" << endl;
-                        exit = false;
+                    case 3:
+                        if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
+                            --y;
+                            break;
+                        } else variant = 0;
                         break;
                 }
-
                 if (exit) break;
             }
-        }
-                else {
-                    cout << "Bot ustal" << endl;
-                    if (bot.play()) {
-                        cout << "Bot won!!!!!!!" << endl;
-                        game_over = true;
+
+
+            while (true) {
+                if (rival_field->is_cell_visited(x, y)) {
+                    for (x = 0; x < 10; ++x) {
+                        bool free_cell_found = false;
+                        for (y = 0; y < 10; ++y) {
+                            if (rival_field->is_cell_visited(x, y)) free_cell_found = true;
+                        }
+                        if (free_cell_found) break;
                     }
                 }
 
-                if (game_over) break;
+                switch (rival_field->attack(x, y)) {
+                    case miss:
+                        return false;
+                    case damage: {
+                        last_ship_x = x;
+                        last_ship_y = y;
+                        int variant = rand() % 4;
+                        bool a = true;
+                        while (a) {
+                            switch (variant) {
+                                case 0:
+                                    if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
+                                        ++x;
+                                        break;
+                                    } else ++variant;
+                                case 1:
+                                    if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
+                                        --x;
+                                        break;
+                                    } else ++variant;
+                                case 2:
+                                    if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
+                                        ++y;
+                                        break;
+                                    } else ++variant;
+                                case 3:
+                                    if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
+                                        --y;
+                                        break;
+                                    } else variant = 0;
+                            }
+                            if (a) break;
+                        }
 
-                player = !player;
+                        // мы однозначно знаем, что x,y и last_ship_x, last_ship_y - принадлежат кораблю. По ним можно узнать напрвление;
+                        if (x == last_ship_x) position = gorizont;
+                        if (y == last_ship_y) position = vertical;
 
+                        continue;
+                    }
+                    case destroy: {
+                        last_ship_x = -1;
+                        last_ship_y = -1;
+                        position = unknown;
+                    }
+                    case win:
+                        return true;
+                        break;
+                    case already_attacked:
+                        throw runtime_error("R U Tam ofigeli");
+                }
 
+            }
+        }
     }
-
-    return 0;
 }
+#endif //BOY_2_BOT_H
