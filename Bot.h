@@ -26,6 +26,10 @@ public:
     void place_ships();
 
     bool play();
+
+    bool random_attack();
+
+    bool attack_ship();
 };
 
 void Bot::place_ships() {
@@ -182,113 +186,89 @@ void Bot::place_ships() {
 
 // 1 -  выиграл игру, 0 - убил или ранил корабль
 bool Bot::play() {
-    if (last_ship_x == -1) {
-        if (position == unknown) {
-            int x = last_ship_x;
-            int y = last_ship_y;
-            int variant = rand() % 4;
+    if (last_ship_x == -1) return random_attack();
+    else return attack_ship();
+}
 
-            bool exit = true;
-            while (true) {
-                switch (variant) {
-                    case 0:
-                        if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
-                            ++x;
-                            exit = true;
-                        } else ++variant;
-                        break;
-                    case 1:
-                        if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
-                            --x;
-                            exit = true;
-                        } else ++variant;
-                        break;
-                    case 2:
-                        if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
-                            ++y;
-                            exit = true;
-                        } else ++variant;
-                        break;
-                    case 3:
-                        if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
-                            --y;
-                            exit = true;
-                        } else variant = 0;
-                        break;
+bool Bot::random_attack() {
+    // TODO переместить в отдельную функцию
+    // случайная атака корабля
+    while (true) {
+        int x = rand() % 10;
+        int y = rand() % 10;
+
+        if (rival_field->is_cell_visited(x, y)) {
+            for (x = 0; x < 10; ++x) {
+                bool free_cell_found = false;
+                for (y = 0; y < 10; ++y) {
+                    if (rival_field->is_cell_visited(x, y)) free_cell_found = true;
                 }
-                if (exit) break;
-            }
-
-
-            while (true) {
-                if (rival_field->is_cell_visited(x, y)) {
-                    for (x = 0; x < 10; ++x) {
-                        bool free_cell_found = false;
-                        for (y = 0; y < 10; ++y) {
-                            if (rival_field->is_cell_visited(x, y)) free_cell_found = true;
-                        }
-                        if (free_cell_found) break;
-                    }
-                }
-
-                switch (rival_field->attack(x, y)) {
-                    case miss:
-                        return false;
-                    case damage: {
-                        last_ship_x = x;
-                        last_ship_y = y;
-                        int variant = rand() % 4;
-                        bool a = true;
-                        while (a) {
-                            switch (variant) {
-                                case 0:
-                                    if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
-                                        ++x;
-                                        break;
-                                    } else ++variant;
-                                case 1:
-                                    if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
-                                        --x;
-                                        break;
-                                    } else ++variant;
-                                case 2:
-                                    if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
-                                        ++y;
-                                        break;
-                                    } else ++variant;
-                                case 3:
-                                    if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
-                                        --y;
-                                        break;
-                                    } else variant = 0;
-                            }
-                            if (a) break;
-                        }
-
-                        // мы однозначно знаем, что x,y и last_ship_x, last_ship_y - принадлежат кораблю. По ним можно узнать напрвление;
-                        if (x == last_ship_x) position = gorizont;
-                        if (y == last_ship_y) position = vertical;
-
-                        continue;
-                    }
-                    case destroy: {
-                        last_ship_x = -1;
-                        last_ship_y = -1;
-                        position = unknown;
-                    }
-                    case win:
-                        return true;
-                        break;
-                    case already_attacked:
-                        throw runtime_error("R U Tam ofigeli");
-                }
-
+                if (free_cell_found) break;
             }
         }
 
+        // x, y -- координаты, которые мы можем атаковать
+
+        switch (rival_field->attack(x, y)) {
+            case miss:
+                return false;
+            case damage: { // сбили не однопалубник, а значит нужно перейти в режим атаки корабля
+                last_ship_x = x;
+                last_ship_y = y;
+
+                return attack_ship();
+            }
+            case destroy:
+                continue; // просто сбили однопалубник
+            case win:
+                return true; // победили, сбив однопалубник
+            case already_attacked:
+                throw runtime_error("R U Tam ofigeli");
+        }
     }
-    int x = rand() % 10;
-    int y = rand() % 10;
+}
+
+bool Bot::attack_ship() {
+    // попытка продолжения атаки корабля
+    if (position == unknown) {
+        int x = last_ship_x;
+        int y = last_ship_y;
+        int variant = rand() % 4;
+
+        bool exit = true;
+        // находим случайную сторону, которую можно атаковать
+        while (true) {
+            switch (variant) {
+                case 0:
+                    if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
+                        ++x;
+                        exit = true;
+                    } else ++variant;
+                    break;
+                case 1:
+                    if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
+                        --x;
+                        exit = true;
+                    } else ++variant;
+                    break;
+                case 2:
+                    if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
+                        ++y;
+                        exit = true;
+                    } else ++variant;
+                    break;
+                case 3:
+                    if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
+                        --y;
+                        exit = true;
+                    } else variant = 0;
+                    break;
+            }
+            if (exit) break;
+        }
+
+
+    }
 }
 
 #endif //BOY_2_BOT_H
