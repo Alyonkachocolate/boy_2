@@ -221,7 +221,7 @@ int main() {
                 if (exit) break;
             }
         } else {
-            cout << "Bot ustal" << endl;
+            cout << "Bot's turn" << endl;
             if (bot.play()) {
                 cout << "Bot won!!!!!!!" << endl;
                 game_over = true;
@@ -231,8 +231,6 @@ int main() {
         if (game_over) break;
 
         player = !player;
-
-
     }
 
     return 0;
