@@ -315,32 +315,6 @@ bool Bot::attack_ship() {
                 else --s;
             }
             ////////////////////////////////////////////////////////////////END1
-            if (sign) {
-                (position ? s : -s);
-                while (true) {
-                    if (rival_field->is_out_of_bounds(x - s, y))
-                        if (!rival_field->is_cell_visited(x - s, y)) {
-
-                            switch (rival_field->attack(x - s, y)) {
-                                case miss:
-                                    return false;
-                                case damage: { // ранили, но не убили
-                                    break;
-                                }
-                                case destroy:
-                                    last_ship_x = -1;
-                                    last_ship_y = -1;
-                                    position = unknown;
-                                    break; // убили корабль
-                                case win:
-                                    return true; // победили
-                                case already_attacked:
-                                    throw runtime_error("R U Tam ofigeli");
-                            }
-                        } else s = 1;
-                    else break;
-                }
-            }
         } else {
             ////////////////////////////////////////////////////////////////BEGIN2
             bool znak = false;
