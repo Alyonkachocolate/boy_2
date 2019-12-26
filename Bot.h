@@ -180,41 +180,39 @@ void Bot::place_ships() {
 }
 
 
-
 // 1 -  выиграл игру, 0 - убил или ранил корабль
 bool Bot::play() {
-    int x = rand() % 10;
-    int y = rand() % 10;
+    if (last_ship_x == -1) {
         if (position == unknown) {
-            x = last_ship_x;
-            y = last_ship_y;
+            int x = last_ship_x;
+            int y = last_ship_y;
             int variant = rand() % 4;
 
             bool exit = true;
-            while (exit) {
+            while (true) {
                 switch (variant) {
                     case 0:
                         if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
                             ++x;
-                            break;
+                            exit = true;
                         } else ++variant;
                         break;
                     case 1:
                         if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
                             --x;
-                            break;
+                            exit = true;
                         } else ++variant;
                         break;
                     case 2:
                         if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
                             ++y;
-                            break;
+                            exit = true;
                         } else ++variant;
                         break;
                     case 3:
                         if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
                             --y;
-                            break;
+                            exit = true;
                         } else variant = 0;
                         break;
                 }
@@ -287,6 +285,10 @@ bool Bot::play() {
 
             }
         }
+
     }
+    int x = rand() % 10;
+    int y = rand() % 10;
+}
 
 #endif //BOY_2_BOT_H
