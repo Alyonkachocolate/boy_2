@@ -12,19 +12,19 @@ enum Cell {
     /**
      * Не атакованная и пустая
      */
-    freee,
+            freee,
     /**
      * Корабль, но не атакованная
      */
-    ship,
+            ship,
     /**
      *
      */
-    discovered,
+            discovered,
     /**
      *
      */
-    attacked
+            attacked
 };
 
 bool is_ship(const Cell &cell) {

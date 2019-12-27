@@ -1,4 +1,5 @@
 
+
 //
 // Created by user on 25/12/2019.
 //
@@ -177,6 +178,7 @@ void Bot::place_ships() {
 
     }
 
+    own_field->undiscover();
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             own_field->place(i, j, chip[i][j]);
@@ -195,21 +197,20 @@ bool Bot::play() {
 bool Bot::random_attack() {
     // случайная атака корабля
     while (true) {
-        int x = rand() % 10;
-        int y = rand() % 10;
+        auto x = rand() % 10, y = rand() % 10;
 
         if (rival_field->is_cell_visited(x, y)) {
             for (x = 0; x < 10; ++x) {
                 bool free_cell_found = false;
-                for (y = 0; y < 10; ++y) {
-                    if (rival_field->is_cell_visited(x, y)) free_cell_found = true;
+                for (y = 0; y < 10; ++y) if (!rival_field->is_cell_visited(x, y)) {
+                    free_cell_found = true;
+                    break;
                 }
                 if (free_cell_found) break;
             }
         }
 
         // x, y -- координаты, которые мы можем атаковать
-
         switch (rival_field->attack(x, y)) {
             case miss:
                 return false;
@@ -224,7 +225,7 @@ bool Bot::random_attack() {
             case win:
                 return true; // победили, сбив однопалубник
             case already_attacked:
-                throw runtime_error("R U Tam ofigeli");
+                throw runtime_error("R U Tam ofigeli___1");
         }
     }
 }
@@ -272,7 +273,7 @@ bool Bot::attack_ship() {
             case miss:
                 return false;
             case damage: { // ранили, но не убили
-                position = (x==last_ship_x) ? gorizont : vertical;
+                position = (x == last_ship_x) ? gorizont : vertical;
                 return attack_ship();
             }
             case destroy:
@@ -283,121 +284,75 @@ bool Bot::attack_ship() {
             case win:
                 return true; // победили
             case already_attacked:
-                throw runtime_error("R U Tam ofigeli");
+                throw runtime_error("R U Tam ofigeli_______2");
         }
-
-        while (true){
-            int s=1;
-            if (position==vertical) {
-                bool znak=0;
-                while (true){
-                    if (rival_field->is_out_of_bounds(x+s,y))
-                    if (!rival_field->is_cell_visited(x+s,y)) {
-
-                        switch (rival_field->attack(x+s, y)) {
-                            case miss:
-                                return false;
-                            case damage: { // ранили, но не убили
-                                break;
-                            }
-                            case destroy:
-                                last_ship_x = -1;
-                                last_ship_y = -1;
-                                position = unknown;
-                                break; // убили корабль
-                            case win:
-                                return true; // победили
-                            case already_attacked:
-                                throw runtime_error("R U Tam ofigeli");
-                        }
-                        ++s;
-                    }
-                        else {znak=1; s=1}
-                        else break;
-                        }
-                if (znak==1) {(position ? s : -s);
-                    while (true){
-                        if (rival_field->is_out_of_bounds(x-s,y))
-                            if (!rival_field->is_cell_visited(x-s,y)) {
-
-                                switch (rival_field->attack(x-s, y)) {
-                                    case miss:
-                                        return false;
-                                    case damage: { // ранили, но не убили
-                                        break;
-                                    }
-                                    case destroy:
-                                        last_ship_x = -1;
-                                        last_ship_y = -1;
-                                        position = unknown;
-                                        break; // убили корабль
-                                    case win:
-                                        return true; // победили
-                                    case already_attacked:
-                                        throw runtime_error("R U Tam ofigeli");
-                                }
-                            }
-                            else s=1;
-                        else break;
-                    }
-            }
-        }
-            else {
-                bool znak=0;
-                while (true){
-                    if (rival_field->is_out_of_bounds(x,y+s))
-                        if (!rival_field->is_cell_visited(x,y+s)) {
-
-                            switch (rival_field->attack(x, y+s)) {
-                                case miss:
-                                    return false;
-                                case damage: { // ранили, но не убили
-                                    break;
-                                }
-                                case destroy:
-                                    last_ship_x = -1;
-                                    last_ship_y = -1;
-                                    position = unknown;
-                                    break; // убили корабль
-                                case win:
-                                    return true; // победили
-                                case already_attacked:
-                                    throw runtime_error("R U Tam ofigeli");
-                            }
-                            ++s;
-                        }
-                        else {znak=1; s=1}
-                    else break;
-                }
-                if (znak==1) {(position ? s : -s);
-                    while (true){
-                        if (rival_field->is_out_of_bounds(x,y-s))
-                            if (!rival_field->is_cell_visited(x,y-s)) {
-
-                                switch (rival_field->attack(x, y-s)) {
-                                    case miss:
-                                        return false;
-                                    case damage: { // ранили, но не убили
-                                        break;
-                                    }
-                                    case destroy:
-                                        last_ship_x = -1;
-                                        last_ship_y = -1;
-                                        position = unknown;
-                                        break; // убили корабль
-                                    case win:
-                                        return true; // победили
-                                    case already_attacked:
-                                        throw runtime_error("R U Tam ofigeli");
-                                }
-                            }
-                            else s=1;
-                        else break;
-                    }
-                }
-            }
-
     }
 
+    while (true) {
+        int s = 1;
+        if (position == vertical) {
+
+            bool positive = true;
+            while (true) {
+                if (rival_field->is_out_of_bounds(last_ship_x + s, last_ship_y)) {
+                    if (positive) {
+                        s = -1;
+                        positive = false;
+                    } else throw runtime_error("R U Tam ofigeli ______3");
+                }
+
+                switch (rival_field->attack(last_ship_x + s, last_ship_y)) {
+                    case miss:
+                        return false; // передаём ход игроку
+                    case damage:
+                        break; // продолжаем перебор в эту сторону
+                    case destroy:
+                        last_ship_x = last_ship_y = -1;
+                        position = unknown;
+                        return random_attack(); // снова переходим на случайные атаки
+                    case win:
+                        return true; // победа
+                    case already_attacked:
+                        throw runtime_error("R U Tam ofigeli______4");
+                }
+                if (positive) ++s;
+                else --s;
+            }
+        } else {
+
+            bool positive = true;
+            while (true) {
+                if (rival_field->is_out_of_bounds(last_ship_x, last_ship_y + s)) {
+                    if (positive) {
+                        s = -1;
+                        positive = false;
+                    } else throw runtime_error("R U Tam ofigeli_________5");
+                }
+
+                switch (rival_field->attack(last_ship_x, last_ship_y + s)) {
+                    case miss:
+                        return false;
+                    case damage: { // ранили, но не убили
+                        break;
+                    }
+                    case destroy:
+                        last_ship_x = -1;
+                        last_ship_y = -1;
+                        position = unknown;
+                        return random_attack();
+                    case win:
+                        return true; // победили
+                    case already_attacked:
+                        throw runtime_error("R U Tam ofigeli________6");
+                }
+                if (positive) ++s;
+                else --s;
+
+            }
+
+        }
+
+    }
+}
 
 #endif //BOY_2_BOT_H
