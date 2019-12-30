@@ -228,14 +228,14 @@ bool Bot::random_attack() {
     }
 }
 
+// попытка продолжения атаки корабля
 bool Bot::attack_ship() {
-    // попытка продолжения атаки корабля
-    if (position == unknown) {
+    if (position == unknown) { // пока не знаем ничего о корабле
         int x = last_ship_x;
         int y = last_ship_y;
         int variant = rand() % 4;
 
-        bool exit = true;
+        bool exit = false;
         // находим случайную сторону, которую можно атаковать
         while (true) {
             switch (variant) {
@@ -243,19 +243,19 @@ bool Bot::attack_ship() {
                     if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
                         ++x;
                         exit = true;
-                    } else ++variant;
+                    } else variant = 1;
                     break;
                 case 1:
                     if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
                         --x;
                         exit = true;
-                    } else ++variant;
+                    } else variant = 2;
                     break;
                 case 2:
                     if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
                         ++y;
                         exit = true;
-                    } else ++variant;
+                    } else variant = 3;
                     break;
                 case 3:
                     if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
