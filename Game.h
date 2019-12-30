@@ -41,11 +41,8 @@ public:
 
     void undiscover();
 
-    void print_everything(); // вывод красивый
-    void print_known(); // вывод компа для user
-    void print_fully(); // вывод полный
-
-
+    void print_everything(); // вывод всего
+    void print_known(); // вывод известного
 };
 
 void Game::user_arrangement() {
