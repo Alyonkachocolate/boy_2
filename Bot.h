@@ -36,7 +36,6 @@ public:
 };
 
 void Bot::place_ships() {
-    int x, y;
     Cell chip[10][10];
     for (auto &i : chip) {
         for (Cell &j : i) {
@@ -141,18 +140,18 @@ void Bot::place_ships() {
             line = rand1;
             column = start_;
             for (int i = line - 1; i <= line + 1; i++) {
-                for (int j = column - 1; j <= column + 2; j++) {
-                    if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = discovered;
+                for (int l = column - 1; l <= column + 2; l++) {
+                    if ((i < 10) && (i >= 0) && (l < 10) && (l >= 0)) k = 1; else k = 0;
+                    if (k == 1) if (chip[i][l] != ship) chip[i][l] = discovered;
                 }
             }
         } else {
             line = start_;
             column = rand1;
             for (int i = line - 1; i <= line + 2; i++) {
-                for (int j = column - 1; j <= column + 1; j++) {
-                    if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
+                for (int l = column - 1; l <= column + 1; l++) {
+                    if ((i < 10) && (i >= 0) && (l < 10) && (l >= 0)) k = 1; else k = 0;
+                    if (k == 1 && chip[i][l] != ship) chip[i][l] = discovered;
                 }
 
             }
