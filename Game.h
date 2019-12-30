@@ -124,6 +124,34 @@ void Game::user_arrangement() {
 
 void Game::place(int x, int y, Cell c) {
     cells[x][y] = c;
+    if (c == ship) ++k;
+}
+
+void Game::print_known() {
+    cout << " ";
+    for (int x = 0; x < 10; ++x) cout << "   " << ((char) ('A' + x));
+    cout << endl;
+
+    for (int y = 0; y < 10; ++y) {
+        cout << y;
+        for (auto &x : cells) {
+            const auto cell = x[y];
+            switch (cell) {
+                case freee:
+                case ship:
+                    cout << "   .";
+                    break;
+                case discovered:
+                    cout << "   ~";
+                    break;
+                case attacked:
+                    cout << "   x";
+                    break;
+            }
+        }
+        cout << endl;
+    }
+    cout << "                         " << k << " ships left" << endl;
 }
 
 void Game::print_everything() {
@@ -142,38 +170,16 @@ void Game::print_everything() {
                 case discovered:
                     cout << "   ~";
                     break;
-                case attacked:
-                    cout << "   x";
-                    break;
                 case ship:
                     cout << "   #";
+                    break;
+                case attacked:
+                    cout << "   x";
                     break;
             }
         }
         cout << endl;
     }
-    /*
-    char pole[11][11];
-    pole[0][0] = ' ';
-    for (int i = 1; i < 11; i++) {
-        for (int j = 1; j < 11; j++) {
-            if (cells[i - 1][j - 1] == freee || cells[i - 1][j - 1] == discovered)
-                pole[i][j] = '.';
-            if (cells[i - 1][j - 1] == attacked) pole[i][j] = 'x';
-            if (cells[i - 1][j - 1] == ship) pole[i][j] = '#';
-        }
-    }
-    cout << "You" << endl;
-    char c = '0';
-    for (int i = 1; i < 11; i++) pole[0][i] = c++;
-    for (char j = 1; j < 11; j++) pole[j][0] = 64 + j;
-    for (auto &i : pole) {
-        for (char j : i) {
-            cout << j << ' ' << ' ' << ' ';
-        }
-        cout << endl;
-    }
-    */
 }
 
 bool Game::get_cell_miss(int x, int y) {
@@ -196,12 +202,13 @@ Attack Game::attack(int x, int y) {
     }
     if (cells[x][y] == ship) {
         cells[x][y] = attacked;
+        cout << "K was = " << k << " and became = " << k - 1 << endl;
         --k;
-        if (try_attack(x, y)) return k == 0 ? win : destroy; else return damage;
+        if (k == 0) return win; // нет смысла ещё что-то проверять
+        return try_attack(x, y) ? destroy : damage;
     }
     throw runtime_error("Всё пошло плохо!!!! Как и вся моя жизнь!!!!!!!!!!!!!!!!!!");
 }
-
 
 /**
  *
@@ -250,7 +257,10 @@ bool Game::try_attack(const int x, const int y) {
     }
 
     surround_ship_cell(x, y);
-    for (const auto &coordinate : ship_coordinates) surround_ship_cell(coordinate.x, coordinate.y);
+    for (const auto &coordinate : ship_coordinates) {
+        cout << "Handling at " << char(coordinate.x + 'A') << ":" << coordinate.y << endl;
+        surround_ship_cell(coordinate.x, coordinate.y);
+    }
 
     return true;
 }
@@ -277,32 +287,6 @@ void Game::undiscover() {
     }
 }
 
-void Game::print_known() {
-    cout << " ";
-    for (int x = 0; x < 10; ++x) cout << "   " << ((char) ('A' + x));
-    cout << endl;
-
-    for (int y = 0; y < 10; ++y) {
-        cout << y;
-        for (auto &x : cells) {
-            const auto cell = x[y];
-            switch (cell) {
-                case freee:
-                case ship:
-                    cout << "   .";
-                    break;
-                case discovered:
-                    cout << "   x";
-                    break;
-                case attacked:
-                    cout << "   #";
-                    break;
-            }
-        }
-        cout << endl;
-    }
-}
-
 bool Game::try_place_single_ship(int x1, int y1) {
     for (int tested_x = x1 - 1; tested_x <= x1 + 1; ++tested_x) {
         for (int tested_y = y1 - 1; tested_y <= y1 + 1; ++tested_y) {
@@ -312,7 +296,7 @@ bool Game::try_place_single_ship(int x1, int y1) {
         }
     }
 
-    cells[x1][y1] = ship;
+    place(x1, y1, ship);
     surround_ship_cell(x1, y1);
 
     return true;
@@ -343,12 +327,12 @@ bool Game::try_place_ship(const size_t size, int x1, int y1, int x2, int y2) {
 
     for (int tested_x = x1; tested_x <= x2; ++tested_x) {
         for (int tested_y = y1; tested_y <= y2; ++tested_y) {
-            cout << "{" << tested_x << ":" << tested_y << "}" << endl;
-
             cells[tested_x][tested_y] = ship;
             surround_ship_cell(tested_x, tested_y);
         }
     }
+
+    k += size;
 
     return true;
 }

@@ -68,8 +68,9 @@ int main() {
                 if (exit) break;
             }
         } else {
+            cout << "Bot's turn" << endl;
             const auto bot_won = bot.play();
-            cout << "=== your field ===" << endl;
+            cout << "=== your field after attack ===" << endl;
             user_game.print_everything();
             cout << endl;
             if (bot_won) {

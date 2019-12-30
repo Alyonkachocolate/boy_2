@@ -197,16 +197,19 @@ bool Bot::random_attack() {
     while (true) {
         auto x = rand() % 10, y = rand() % 10;
 
+        int count = 0;
         if (rival_field->is_cell_visited(x, y)) {
             for (x = 0; x < 10; ++x) {
                 bool free_cell_found = false;
                 for (y = 0; y < 10; ++y) if (!rival_field->is_cell_visited(x, y)) {
+                    ++count;
                     free_cell_found = true;
                     break;
                 }
                 if (free_cell_found) break;
             }
         }
+        cout << count << endl;
 
         // x, y -- координаты, которые мы можем атаковать
         switch (rival_field->attack(x, y)) {
@@ -299,6 +302,7 @@ bool Bot::attack_ship() {
                     } else throw runtime_error("R U Tam ofigeli ______3");
                 }
 
+                cout << "Smart attack on " << last_ship_x + delta << ":" << last_ship_y << endl;
                 switch (rival_field->attack(last_ship_x + delta, last_ship_y)) {
                     case miss:
                         return false; // передаём ход игроку
@@ -310,8 +314,7 @@ bool Bot::attack_ship() {
                         return random_attack(); // снова переходим на случайные атаки
                     case win:
                         return true; // победа
-                    case already_attacked:
-                        throw runtime_error("R U Tam ofigeli______4");
+                    case already_attacked: break;
                 }
                 if (positive) ++delta;
                 else --delta;
@@ -327,6 +330,7 @@ bool Bot::attack_ship() {
                     } else throw runtime_error("R U Tam ofigeli_________5");
                 }
 
+                cout << "Smart attack on " << last_ship_x << ":" << last_ship_y + delta << endl;
                 switch (rival_field->attack(last_ship_x, last_ship_y + delta)) {
                     case miss:
                         return false;
@@ -339,8 +343,7 @@ bool Bot::attack_ship() {
                         return random_attack();
                     case win:
                         return true; // победили
-                    case already_attacked:
-                        throw runtime_error("R U Tam ofigeli________6");
+                    case already_attacked: break;
                 }
                 if (positive) ++delta;
                 else --delta;
