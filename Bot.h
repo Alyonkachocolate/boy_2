@@ -98,18 +98,18 @@ void Bot::place_ships() {
             line = rand1;
             column = start_;
             for (int i = line - 1; i <= line + 1; i++) {
-                for (int j = column - 1; j <= column + 3; j++) {
-                    if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1) if (chip[i][j] != ship) chip[i][j] = discovered;
+                for (int l = column - 1; l <= column + 3; l++) {
+                    if ((i < 10) && (i >= 0) && (l < 10) && (l >= 0)) k = 1; else k = 0;
+                    if (k == 1) if (chip[i][l] != ship) chip[i][l] = discovered;
                 }
             }
         } else {
             line = start_;
             column = rand1;
             for (int i = line - 1; i <= line + 3; i++) {
-                for (int j = column - 1; j <= column + 1; j++) {
-                    if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                    if (k == 1 && chip[i][j] != ship) chip[i][j] = discovered;
+                for (int l = column - 1; l <= column + 1; l++) {
+                    if ((i < 10) && (i >= 0) && (l < 10) && (l >= 0)) k = 1; else k = 0;
+                    if (k == 1 && chip[i][l] != ship) chip[i][l] = discovered;
                 }
 
             }
@@ -287,19 +287,19 @@ bool Bot::attack_ship() {
     }
 
     while (true) {
-        int s = 1;
+        int delta = 1;
         if (position == vertical) {
 
             bool positive = true;
             while (true) {
-                if (rival_field->is_out_of_bounds(last_ship_x + s, last_ship_y)) {
+                if (rival_field->is_out_of_bounds(last_ship_x + delta, last_ship_y)) {
                     if (positive) {
-                        s = -1;
+                        delta = -1;
                         positive = false;
                     } else throw runtime_error("R U Tam ofigeli ______3");
                 }
 
-                switch (rival_field->attack(last_ship_x + s, last_ship_y)) {
+                switch (rival_field->attack(last_ship_x + delta, last_ship_y)) {
                     case miss:
                         return false; // передаём ход игроку
                     case damage:
@@ -313,29 +313,28 @@ bool Bot::attack_ship() {
                     case already_attacked:
                         throw runtime_error("R U Tam ofigeli______4");
                 }
-                if (positive) ++s;
-                else --s;
+                if (positive) ++delta;
+                else --delta;
             }
         } else {
 
             bool positive = true;
             while (true) {
-                if (rival_field->is_out_of_bounds(last_ship_x, last_ship_y + s)) {
+                if (rival_field->is_out_of_bounds(last_ship_x, last_ship_y + delta)) {
                     if (positive) {
-                        s = -1;
+                        delta = -1;
                         positive = false;
                     } else throw runtime_error("R U Tam ofigeli_________5");
                 }
 
-                switch (rival_field->attack(last_ship_x, last_ship_y + s)) {
+                switch (rival_field->attack(last_ship_x, last_ship_y + delta)) {
                     case miss:
                         return false;
                     case damage: { // ранили, но не убили
                         break;
                     }
                     case destroy:
-                        last_ship_x = -1;
-                        last_ship_y = -1;
+                        last_ship_x = last_ship_y = -1;
                         position = unknown;
                         return random_attack();
                     case win:
@@ -343,13 +342,11 @@ bool Bot::attack_ship() {
                     case already_attacked:
                         throw runtime_error("R U Tam ofigeli________6");
                 }
-                if (positive) ++s;
-                else --s;
-
+                if (positive) ++delta;
+                else --delta;
             }
 
         }
-
     }
 }
 
