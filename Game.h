@@ -24,6 +24,11 @@ protected:
     void surround_ship_cell(const int &x, const int &y);
 
 public:
+
+    bool try_place_single_ship(int x1, int y1);
+
+    bool try_place_ship(const size_t size, int x1, int y1, int x2, int y2);
+
     void user_arrangement(); // заполенение для пользователя
 
     // проверка клетки
@@ -37,7 +42,7 @@ public:
     bool get_cell_miss(int x, int y); // 1 - пустая клетка
 
     void place(int x, int y, Cell c); // выставление значения клетке
-    bool end(); // проверка конца игры: 0 - не конец игры
+    // проверка конца игры: 0 - не конец игры
 
     void undiscover();
 
@@ -46,105 +51,71 @@ public:
 };
 
 void Game::user_arrangement() {
-    int line, column;
-    int k;
-    //char chip[10][10];
     cout << "Use capital letters!" << endl;
     cout << "Ship arrangement" << endl;
 
-    cout << "Four deck" << endl;
-    cout << "Cells: ";
-    int start4 = 0, end4 = 0;
-    char start4_ = 0, end4_ = 0;
-    cin >> start4_ >> start4 >> end4_ >> end4;
-//    if (!is_out_of_bounds(start4, int(start4_) - 65))
-//        if (!is_out_of_bounds(end4, int(end4_) - 65)) cout << "Error. Use capital letters!";
-//        else {
-    if (start4 == end4) {
-        cells[start4][int(start4_) - 65] = ship;
-        cells[start4][int(start4_) - 64] = ship;
-        cells[start4][int(start4_) - 63] = ship;
-        cells[start4][int(end4_) - 65] = ship;
-        line = start4;
-        column = start4_;
-        for (int i = line - 1; i <= line + 1; i++) {
-            for (int j = column - 1; j <= column + 4; j++) {
-                if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1) if (cells[i][j] != ship) cells[i][j] = discovered;
-            }
+    print_everything(); // Вывод пустого поля
+
+    {
+        int x1, y1, x2, y2;
+        cout << "Four deck" << endl;
+        do {
+            cout << "Enter beginning and ending cells" << endl;
+            char x1_char, x2_char;
+            cin >> x1_char >> y1 >> x2_char >> y2;
+            x1 = x1_char - 'A';
+            x2 = x2_char - 'A';
+        } while (!try_place_ship(4, x1, y1, x2, y2));
+        print_everything();
+    }
+
+    {
+        for (int i = 0; i < 2; ++i) {
+            int x1, y1, x2, y2;
+            cout << "Three deck #" << i << endl;
+            do {
+                cout << "Enter beginning and ending cells" << endl;
+                char x1_char, x2_char;
+                cin >> x1_char >> y1 >> x2_char >> y2;
+                x1 = x1_char - 'A';
+                x2 = x2_char - 'A';
+            } while (!try_place_ship(3, x1, y1, x2, y2));
+            print_everything();
         }
     }
-    if (start4_ == end4_) {
-        cells[start4][int(start4_) - 65] = ship;
-        cells[start4 + 1][int(start4_) - 65] = ship;
-        cells[start4 + 2][int(start4_) - 65] = ship;
-        cells[end4][int(start4_) - 65] = ship;
-        line = start4_;
-        column = start4;
-        for (int i = line - 1; i <= line + 4; i++) {
-            for (int j = column - 1; j <= column + 1; j++) {
-                if ((i < 10) && (i >= 0) && (j < 10) && (j >= 0)) k = 1; else k = 0;
-                if (k == 1 && cells[i][j] != ship) cells[i][j] = discovered;
-            }
 
+    {
+        for (int i = 0; i < 3; ++i) {
+            int x1, y1, x2, y2;
+            cout << "Two deck #" << i << endl;
+            do {
+                cout << "Enter beginning and ending cells" << endl;
+                char x1_char, x2_char;
+                cin >> x1_char >> y1 >> x2_char >> y2;
+                x1 = x1_char - 'A';
+                x2 = x2_char - 'A';
+            } while (!try_place_ship(2, x1, y1, x2, y2));
+            print_everything();
         }
     }
-    cout << endl;
 
-    cout << "Three deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 2; i++) {
-        int start3, end3;
-        char start3_, end3_;
-        cin >> start3_ >> start3 >> end3_ >> end3;
-//                if (!is_out_of_bounds(start3, int(start3_) - 65))
-//                    if (!is_out_of_bounds(end3, int(end3_) - 65))
-//                        cout << "Error. Use capital letters!";
-        if (start3 == end3) {
-            cells[start3][int(start3_) - 65] = ship;
-            cells[start3][int(start3_) - 64] = ship;
-            cells[start3][int(end3_) - 65] = ship;
-        }
-        if (start3_ == end3_) {
-            cells[start3][int(start3_) - 65] = ship;
-            cells[start3 + 1][int(start3_) - 65] = ship;
-            cells[end3][int(start3_) - 65] = ship;
+    {
+        for (int i = 0; i < 4; ++i) {
+            int x, y;
+            cout << "One deck #" << i << endl;
+            do {
+                cout << "Enter beginning and ending cells" << endl;
+                {
+                    char x_char;
+                    cin >> x_char >> y;
+                    x = x_char - 'A';
+                }
+            } while (!try_place_single_ship(x, y));
+            print_everything();
         }
     }
-    cout << endl;
 
-
-    cout << "Double deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 3; i++) {
-        int start2, end2;
-        char start2_, end2_;
-        cin >> start2_ >> start2 >> end2_ >> end2;
-//                if (!is_out_of_bounds(start2, int(start2_) - 65))
-//                    if (!is_out_of_bounds(end2, int(end2_) - 65))
-//                        cout << "Error. Use capital letters!";
-        if (start2 == end2) {
-            cells[start2][int(start2_) - 65] = ship;
-            cells[start2][int(end2_) - 65] = ship;
-        }
-        if (start2_ == end2_) {
-            cells[start2][int(start2_) - 65] = ship;
-            cells[end2][int(start2_) - 65] = ship;
-        }
-    }
-    cout << endl;
-
-    cout << "Single deck" << endl;
-    cout << "Cells: ";
-    for (int i = 0; i < 4; i++) {
-        int start1;
-        char start1_;
-        cin >> start1_ >> start1;
-//                if (!is_out_of_bounds(start1, int(start1_) - 65)) cout << "Error. Use capital letters!";
-        cells[start1][int(start1_) - 65] = ship;
-    }
-    cout << endl;
-
+    undiscover();
 }
 
 //enum attack Game::attack_(int x, int y) {
@@ -153,18 +124,6 @@ void Game::user_arrangement() {
 
 void Game::place(int x, int y, Cell c) {
     cells[x][y] = c;
-}
-
-bool Game::end() {
-    bool t = false;
-    short k;
-    for (auto &i : cells) {
-        for (char j : i) {
-            if (j == ship) k++;
-        }
-    }
-    if (k == 20) t = true;
-    return t;
 }
 
 void Game::print_everything() {
@@ -215,34 +174,6 @@ void Game::print_everything() {
         cout << endl;
     }
     */
-}
-
-void Game::print_fully() {
-    cout << " ";
-    for (int x = 0; x < 10; ++x) cout << "   " << x;
-    cout << endl;
-
-    for (int y = 0; y < 10; ++y) {
-        cout << ((char) ('A' + y));
-        for (auto &x : cells) {
-            const auto cell = x[y];
-            switch (cell) {
-                case freee:
-                    cout << "   .";
-                    break;
-                case discovered:
-                    cout << "   .";
-                    break;
-                case attacked:
-                    cout << "   x" << endl;
-                    break;
-                case ship:
-                    cout << "   #" << endl;
-                    break;
-            }
-        }
-        cout << endl;
-    }
 }
 
 bool Game::get_cell_miss(int x, int y) {
@@ -370,6 +301,56 @@ void Game::print_known() {
         }
         cout << endl;
     }
+}
+
+bool Game::try_place_single_ship(int x1, int y1) {
+    for (int tested_x = x1 - 1; tested_x <= x1 + 1; ++tested_x) {
+        for (int tested_y = y1 - 1; tested_y <= y1 + 1; ++tested_y) {
+            if (is_out_of_bounds(tested_x, tested_y)) continue; // всё норм
+
+            if (!is_empty(cells[tested_x][tested_y])) return false;
+        }
+    }
+
+    cells[x1][y1] = ship;
+    surround_ship_cell(x1, y1);
+
+    return true;
+}
+
+bool Game::try_place_ship(const size_t size, int x1, int y1, int x2, int y2) {
+    // проверить правильность координат
+    if (x1 == x2) {
+        if (y1 == y2) {// одинаковые координаты
+            if (size == 1) return try_place_single_ship(x1, y1);
+            return false;
+        }
+        if (y1 > y2) std::swap(y1, y2);
+        if (y2 - y1 != size - 1) return false;
+    } else {
+        if (y1 != y2) return false; // *диагональный* корабль
+        if (x1 > x2) std::swap(x1, x2);
+        if (y2 - y1 != size - 1) return false;
+    }
+
+    for (int tested_x = x1 - 1; tested_x <= x1 + 1; ++tested_x) {
+        for (int tested_y = y1 - 1; tested_y <= y1 + 1; ++tested_y) {
+            if (is_out_of_bounds(tested_x, tested_y)) continue; // всё норм
+
+            if (!is_empty(cells[tested_x][tested_y])) return false;
+        }
+    }
+
+    for (int tested_x = x1; tested_x <= x2; ++tested_x) {
+        for (int tested_y = y1; tested_y <= y2; ++tested_y) {
+            cout << "{" << tested_x << ":" << tested_y << "}" << endl;
+
+            cells[tested_x][tested_y] = ship;
+            surround_ship_cell(tested_x, tested_y);
+        }
+    }
+
+    return true;
 }
 
 
