@@ -20,8 +20,6 @@ int main() {
     cout << "=== your field ===" << endl;
     user_game.print_everything();
 
-    comp_game.undiscover();
-
     bool game_over = false;
     bool player = true;
     while (true) {
