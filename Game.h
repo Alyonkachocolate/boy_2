@@ -336,9 +336,7 @@ void Game::undiscover() {
     for (auto &column : cells) {
         for (auto &cell : column) {
             switch (cell) {
-                case freee:
-                    break;
-                case ship:
+                case freee: case ship:
                     break;
                 case discovered:
                     cell = freee;
