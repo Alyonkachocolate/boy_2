@@ -12,7 +12,7 @@ int main() {
     Game user_game; //создание Game для пользователя и бота
     Game comp_game;
     Bot bot(&comp_game, &user_game);
-    user_game.user_arrangement();
+   // user_game.user_arrangement();
     bot.place_ships();
 
     cout << "=== bot's field ===" << endl;
