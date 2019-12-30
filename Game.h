@@ -293,14 +293,14 @@ bool Game::try_attack(const int x, const int y) {
             const auto cell = cells[x][tested_y];
             if (is_empty(cell)) break;
             if (cell == ship) return false;
-            else ship_coordinates.push_back(ship_coordinate{x, tested_y});
+            ship_coordinates.push_back(ship_coordinate{x, tested_y});
         }
         tested_y = y;
         while (++tested_y < 10) {
             const auto cell = cells[x][tested_y];
             if (is_empty(cell)) break;
             if (cell == ship) return false;
-            else ship_coordinates.push_back(ship_coordinate{x, tested_y});
+            ship_coordinates.push_back(ship_coordinate{x, tested_y});
         }
     }
 
@@ -310,14 +310,14 @@ bool Game::try_attack(const int x, const int y) {
             const auto cell = cells[tested_x][y];
             if (is_empty(cell)) break;
             if (cell == ship) return false;
-            else ship_coordinates.push_back(ship_coordinate{tested_x, y});
+            ship_coordinates.push_back(ship_coordinate{tested_x, y});
         }
         tested_x = x;
         while (++tested_x < 10) {
             const auto cell = cells[tested_x][y];
             if (is_empty(cell)) break;
             if (cell == ship) return false;
-            else ship_coordinates.push_back(ship_coordinate{tested_x, y});
+            ship_coordinates.push_back(ship_coordinate{tested_x, y});
         }
     }
 
