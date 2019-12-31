@@ -24,7 +24,6 @@ int main() {
     bool player = true;
     while (true) {
         cout << "=========================================" << endl;
-
         // user
         if (player) {
             while (true) {
