@@ -314,7 +314,7 @@ bool Game::try_place_ship(const size_t size, int x1, int y1, int x2, int y2) {
     } else {
         if (y1 != y2) return false; // *диагональный* корабль
         if (x1 > x2) std::swap(x1, x2);
-        if (y2 - y1 != size - 1) return false;
+        if (x2 - x1 != size - 1) return false;
     }
 
     for (int tested_x = x1 - 1; tested_x <= x1 + 1; ++tested_x) {
