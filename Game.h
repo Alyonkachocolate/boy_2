@@ -257,17 +257,17 @@ bool Game::try_attack(const int x, const int y) {
     }
 
     surround_ship_cell(x, y);
-    for (const auto &coordinate : ship_coordinates) {
-        cout << "Handling at " << char(coordinate.x + 'A') << ":" << coordinate.y << endl;
-        surround_ship_cell(coordinate.x, coordinate.y);
-    }
+    for (const auto &coordinate : ship_coordinates) surround_ship_cell(coordinate.x, coordinate.y);
 
     return true;
 }
 
 void Game::surround_ship_cell(const int &x, const int &y) {
-    for (int i = x - 1; i <= x + 1; i++) for (int j = y - 1; j <= y + 1; j++) if (cells[i][j] == freee) cells[i][j]
-            = discovered;
+    for (int i = x - 1; i <= x + 1; i++) {
+        if (0 <= i && i < 10) for (int j = y - 1; j <= y + 1; j++) {
+            if (0 <= j && j < 10 && cells[i][j] == freee) cells[i][j] = discovered;
+        }
+    }
 }
 
 void Game::undiscover() {
