@@ -27,7 +27,7 @@ public:
 
     bool try_place_single_ship(int x1, int y1);
 
-    bool try_place_ship(const size_t size, int x1, int y1, int x2, int y2);
+    bool try_place_ship(size_t size, int x1, int y1, int x2, int y2);
 
     void user_arrangement(); // заполенение для пользователя
 
