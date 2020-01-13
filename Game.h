@@ -39,6 +39,8 @@ public:
 
     bool is_cell_visited(int x, int y); //проверка на клетку, про которую мы знаем, уже атаковали
 
+    bool is_attacked_ship(int x, int y);
+
     bool get_cell_miss(int x, int y); // 1 - пустая клетка
 
     void place(int x, int y, Cell c); // выставление значения клетке
@@ -334,6 +336,10 @@ bool Game::try_place_ship(const size_t size, int x1, int y1, int x2, int y2) {
     }
 
     return true;
+}
+
+bool Game::is_attacked_ship(int x, int y) {
+    return cells[x][y] == attacked;
 }
 
 

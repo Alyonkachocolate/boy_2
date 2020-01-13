@@ -277,6 +277,8 @@ bool Bot::attack_ship() {
             if (exit) break;
         }
 
+
+        cout << "<<< Bot decides to attack " << x << ":" << y << " >>>" << endl;
         switch (rival_field->attack(x, y)) {
             case miss:
                 return false;
@@ -309,7 +311,7 @@ bool Bot::attack_ship() {
                     } else throw runtime_error("R U Tam ofigeli ______3");
                 }
 
-                cout << "Smart attack on " << last_ship_x + delta << ":" << last_ship_y << endl;
+                cout << "<<< Bot continues smart attack on  " << last_ship_x + delta << ":" << last_ship_y << endl;
                 switch (rival_field->attack(last_ship_x + delta, last_ship_y)) {
                     case miss:
                         return false; // передаём ход игроку
@@ -321,7 +323,19 @@ bool Bot::attack_ship() {
                         return random_attack(); // снова переходим на случайные атаки
                     case win:
                         return true; // победа
-                    case already_attacked: break;
+                    case already_attacked: {
+                        // мы продолжаем атаку в эту же сторону, если клетка, на которую мы наткнулись - корабль,
+                        // который мы просто уже атаковали ранее
+                        if (rival_field->is_attacked_ship(last_ship_x + delta, last_ship_y)) break;
+                        else {
+                            // если же мы уже упёрлись в воду, то нужно развернуться
+                            if (positive) {
+                                delta = 0;
+                                positive = false;
+                            } else throw runtime_error("R U Tam ofigeli ______255");
+                        }
+                        break;
+                    }
                 }
                 if (positive) ++delta;
                 else --delta;
@@ -337,7 +351,7 @@ bool Bot::attack_ship() {
                     } else throw runtime_error("R U Tam ofigeli_________5");
                 }
 
-                cout << "Smart attack on " << last_ship_x << ":" << last_ship_y + delta << endl;
+                cout << "<<< Bot continues smart attack on  " << last_ship_x + delta << ":" << last_ship_y << endl;
                 switch (rival_field->attack(last_ship_x, last_ship_y + delta)) {
                     case miss:
                         return false;
@@ -350,7 +364,19 @@ bool Bot::attack_ship() {
                         return random_attack();
                     case win:
                         return true; // победили
-                    case already_attacked: break;
+                    case already_attacked: {
+                        // мы продолжаем атаку в эту же сторону, если клетка, на которую мы наткнулись - корабль,
+                        // который мы просто уже атаковали ранее
+                        if (rival_field->is_attacked_ship(last_ship_x, last_ship_y + delta)) break;
+                        else {
+                            // если же мы уже упёрлись в воду, то нужно развернуться
+                            if (positive) {
+                                delta = 0;
+                                positive = false;
+                            } else throw runtime_error("R U Tam ofigeli ______254");
+                        }
+                        break;
+                    }
                 }
                 if (positive) ++delta;
                 else --delta;
