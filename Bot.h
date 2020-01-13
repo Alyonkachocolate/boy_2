@@ -233,7 +233,10 @@ bool Bot::random_attack() {
 
 // попытка продолжения атаки корабля
 bool Bot::attack_ship() {
+    cout << "<<<<<<<<<< Bot attacks a ship >>>>>>>>>>>>>>>" << endl;
+
     if (position == unknown) { // пока не знаем ничего о корабле
+        cout << "<<< Bot does not yet know the position of the ship >>>" << endl;
         int x = last_ship_x;
         int y = last_ship_y;
         int variant = rand() % 4;
@@ -244,24 +247,28 @@ bool Bot::attack_ship() {
             switch (variant) {
                 case 0:
                     if (x != 9 && !rival_field->is_cell_visited(x + 1, y)) {
+                        cout << "<<< It is x+1 >>>" << endl;
                         ++x;
                         exit = true;
                     } else variant = 1;
                     break;
                 case 1:
                     if (x != 0 && !rival_field->is_cell_visited(x - 1, y)) {
+                        cout << "<<< It is x-1 >>>" << endl;
                         --x;
                         exit = true;
                     } else variant = 2;
                     break;
                 case 2:
                     if (y != 9 && !rival_field->is_cell_visited(x, y + 1)) {
+                        cout << "<<< It is y+1 >>>" << endl;
                         ++y;
                         exit = true;
                     } else variant = 3;
                     break;
                 case 3:
                     if (y != 0 && !rival_field->is_cell_visited(x, y - 1)) {
+                        cout << "<<< It is y-1 >>>" << endl;
                         --y;
                         exit = true;
                     } else variant = 0;
@@ -275,24 +282,24 @@ bool Bot::attack_ship() {
                 return false;
             case damage: { // ранили, но не убили
                 position = (x == last_ship_x) ? gorizont : vertical;
-                return attack_ship();
+                break;
             }
             case destroy:
                 last_ship_x = -1;
                 last_ship_y = -1;
                 position = unknown;
-                break; // убили корабль
+                return random_attack(); // убили корабль, снова случайно атакуем
             case win:
                 return true; // победили
             case already_attacked:
                 throw runtime_error("R U Tam ofigeli_______2");
         }
     }
+    cout << "<<< Continue " << (position == vertical ? "vertical" : "horizontal") << " attack >>>" << endl;
 
     while (true) {
         int delta = 1;
         if (position == vertical) {
-
             bool positive = true;
             while (true) {
                 if (rival_field->is_out_of_bounds(last_ship_x + delta, last_ship_y)) {

@@ -21,7 +21,7 @@ protected:
 
     bool try_attack(int x, int y);
 
-    void surround_ship_cell(const int &x, const int &y);
+    void surround_ship_cell(int x, int y);
 
 public:
 
@@ -196,6 +196,7 @@ bool Game::is_out_of_bounds(int x, int y) {
 
 Attack Game::attack(int x, int y) {
     if (is_cell_visited(x, y)) return already_attacked;
+
     if (get_cell_miss(x, y)) {
         cells[x][y] = discovered;
         return miss;
@@ -262,7 +263,7 @@ bool Game::try_attack(const int x, const int y) {
     return true;
 }
 
-void Game::surround_ship_cell(const int &x, const int &y) {
+void Game::surround_ship_cell(const int x, const int y) {
     for (int i = x - 1; i <= x + 1; i++) {
         if (0 <= i && i < 10) for (int j = y - 1; j <= y + 1; j++) {
             if (0 <= j && j < 10 && cells[i][j] == freee) cells[i][j] = discovered;
@@ -327,12 +328,10 @@ bool Game::try_place_ship(const size_t size, int x1, int y1, int x2, int y2) {
 
     for (int tested_x = x1; tested_x <= x2; ++tested_x) {
         for (int tested_y = y1; tested_y <= y2; ++tested_y) {
-            cells[tested_x][tested_y] = ship;
+            place(tested_x, tested_y, ship);
             surround_ship_cell(tested_x, tested_y);
         }
     }
-
-    k += size;
 
     return true;
 }
